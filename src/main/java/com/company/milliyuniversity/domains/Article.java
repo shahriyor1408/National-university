@@ -3,7 +3,7 @@ package com.company.milliyuniversity.domains;
 import lombok.*;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 
 /**
  * @author "Sohidjonov Shahriyor"
@@ -26,7 +26,7 @@ public class Article {
     private String name;
 
     @Column(nullable = false)
-    private LocalDateTime regDate;
+    private Timestamp regDate;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -39,6 +39,6 @@ public class Article {
     private Long authUserId;
 
     public enum ArticleStatus {
-        ACTIVE, NOT_ACTIVE
+        UNDER_CONSIDERATION, CONSIDERED
     }
 }
