@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author "Sohidjonov Shahriyor"
@@ -20,9 +21,14 @@ import java.util.List;
 @Service
 public class ArticleSessionService {
 
-    ArticleSessionMapper articleSessionMapper;
+    private final ArticleSessionMapper articleSessionMapper;
 
-    ArticleSessionRepository articleSessionRepository;
+    private final ArticleSessionRepository articleSessionRepository;
+
+    public ArticleSessionService(ArticleSessionMapper articleSessionMapper, ArticleSessionRepository articleSessionRepository) {
+        this.articleSessionMapper = articleSessionMapper;
+        this.articleSessionRepository = articleSessionRepository;
+    }
 
     public Long create(@NonNull ArticleSessionCreateDto dto) {
         ArticleSession articleSession = articleSessionMapper.fromMapper(dto);
@@ -39,5 +45,13 @@ public class ArticleSessionService {
             throw new GenericNotFoundException("Session not found!", 404);
         }
         articleSessionRepository.deleteById(id);
+    }
+
+    public ArticleSession get(@NonNull Long sessionId) {
+        Optional<ArticleSession> sessionOptional = articleSessionRepository.findById(sessionId);
+        if (sessionOptional.isEmpty()) {
+            throw new GenericNotFoundException("Session not found!", 404);
+        }
+        return sessionOptional.get();
     }
 }

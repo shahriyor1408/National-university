@@ -37,6 +37,7 @@ public class Article {
 
     @Column(nullable = false)
     private Long authUserId;
+    private String filePath;
 
     public enum ArticleStatus {
         UNDER_CONSIDERATION, CONSIDERED

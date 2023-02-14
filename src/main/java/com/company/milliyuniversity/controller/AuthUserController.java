@@ -12,6 +12,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * @author "Sohidjonov Shahriyor"
@@ -25,7 +26,7 @@ public class AuthUserController extends ApiController<AuthUserService> {
     }
 
     @PostMapping(value = PATH + "/auth/login", produces = "application/json")
-    public ApiResponse<JwtResponse> login(@RequestBody LoginRequest loginRequest) {
+    public ApiResponse<JwtResponse> login(@Valid @RequestBody LoginRequest loginRequest) {
         return new ApiResponse<>(service.login(loginRequest));
     }
 
@@ -36,14 +37,20 @@ public class AuthUserController extends ApiController<AuthUserService> {
 
     @PutMapping(PATH + "/auth/update")
     @PreAuthorize("isAuthenticated()")
-    public ApiResponse<AuthUser> update(AuthUserUpdateDto dto) {
+    public ApiResponse<AuthUser> update(@Valid @RequestBody AuthUserUpdateDto dto) {
         return new ApiResponse<>(service.update(dto));
     }
 
-    @GetMapping(PATH + "/auth/me/{id}")
+    @GetMapping(PATH + "/auth/me")
     @PreAuthorize("isAuthenticated()")
-    public AuthUser me(@PathVariable Long id) {
-        return service.getCurrentAuthUser(id);
+    public AuthUser me() {
+        return service.getSessionAuthUser();
+    }
+
+    @GetMapping(PATH + "/auth/getAll")
+    @PreAuthorize(value = "hasRole('ADMIN')")
+    public ApiResponse<List<AuthUser>> getAll() {
+        return new ApiResponse<>(service.getAll());
     }
 
     @GetMapping(value = PATH + "/auth/refresh", produces = "application/json")

@@ -28,6 +28,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -101,12 +102,6 @@ public class AuthUserService implements UserDetailsService {
         return new ApiResponse<>(200);
     }
 
-    public AuthUser getCurrentAuthUser(@NonNull Long id) {
-        return authUserRepository.findById(id).orElseThrow(() -> {
-            throw new GenericNotFoundException("User not found!", 404);
-        });
-    }
-
     public AuthUser getSessionAuthUser() {
         Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         String username;
@@ -129,8 +124,19 @@ public class AuthUserService implements UserDetailsService {
         authUser.setFirstname(dto.getFirstname());
         authUser.setLastname(dto.getLastname());
         authUser.setMiddleName(dto.getMiddleName());
+
+        if (authUserRepository.findByTelephone(dto.getTelephone()).isPresent()) {
+            throw new GenericRuntimeException("Telephone already exist!", 400);
+        }
+        if (authUserRepository.findByEmail(dto.getEmail()).isPresent()) {
+            throw new GenericRuntimeException("Email already exist!", 400);
+        }
         authUser.setEmail(dto.getEmail());
         authUser.setTelephone(dto.getTelephone());
         return authUserRepository.save(authUser);
+    }
+
+    public List<AuthUser> getAll() {
+        return authUserRepository.findAll();
     }
 }

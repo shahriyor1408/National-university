@@ -4,6 +4,7 @@ import com.company.milliyuniversity.domains.ArticleSession;
 import com.company.milliyuniversity.dtos.ArticleSessionCreateDto;
 import com.company.milliyuniversity.response.ApiResponse;
 import com.company.milliyuniversity.service.ArticleSessionService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,6 +21,7 @@ public class ArticleSessionController extends ApiController<ArticleSessionServic
     }
 
     @PostMapping(value = PATH + "/session/create", produces = "application/json")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Long> create(@RequestBody ArticleSessionCreateDto dto) {
         return new ApiResponse<>(service.create(dto));
     }
@@ -30,6 +32,7 @@ public class ArticleSessionController extends ApiController<ArticleSessionServic
     }
 
     @DeleteMapping(value = PATH + "/session/delete/{id}", produces = "application/json")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> delete(@PathVariable Long id) {
         service.delete(id);
         return new ApiResponse<>(200);

@@ -11,6 +11,16 @@ public class SecurityConstants {
             "/api/v1/auth/login",
             "/api/v1/auth/register",
             "/swagger-ui/**",
-            "/api-docs"
+            "/api-docs",
+            "/api/v1/article/download/**",
+            "/api/v1/session/getAll",
+            "/api/v1/speaker/getAll",
+            "/api/v1/speaker/getAllInvited",
+            "/api/v1/appDocument/getAll",
+            "/api/v1/media/getAll",
+            "/media",
+            "/home/**",
+            "/media/**",
+            "/get-file"
     };
 }
