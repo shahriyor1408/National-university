@@ -1,6 +1,7 @@
 package com.company.milliyuniversity.repository;
 
 import com.company.milliyuniversity.domains.AppDocumentFile;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -13,6 +14,6 @@ import java.util.Optional;
  */
 public interface AppDocumentFileRepository extends JpaRepository<AppDocumentFile, Long> {
 
-    @Query("from AppDocumentFile where path = :fileName")
-    Optional<AppDocumentFile> findByPath(String fileName);
+    @Query("from AppDocumentFile where originalName like :fileName")
+    Optional<AppDocumentFile> findByPath(@Value("fileName") String fileName);
 }

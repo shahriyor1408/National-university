@@ -1,7 +1,6 @@
 package com.company.milliyuniversity.dtos;
 
 import lombok.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -24,7 +23,4 @@ public class ArticleCreateDto {
 
     @NotNull(message = "Id can not be null!")
     private Long sessionId;
-
-    @NotNull(message = "File can not be null!")
-    private MultipartFile file;
 }

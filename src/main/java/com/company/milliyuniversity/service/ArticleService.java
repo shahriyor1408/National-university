@@ -9,6 +9,7 @@ import com.company.milliyuniversity.repository.AppDocumentFileRepository;
 import com.company.milliyuniversity.repository.ArticleRepository;
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -40,16 +41,13 @@ public class ArticleService {
         this.appDocumentFileRepository = appDocumentFileRepository;
     }
 
-    public Long create(ArticleCreateDto formdata) {
-        AppDocumentFile documentFile = storageService.uploadArticleFile(formdata.getFile());
-        appDocumentFileRepository.save(documentFile);
+    public Long create(ArticleCreateDto dto) {
         Article article = Article.builder()
-                .name(formdata.getName())
-                .sessionId(formdata.getSessionId())
+                .name(dto.getName())
+                .sessionId(dto.getSessionId())
                 .authUserId(authUserService.getSessionAuthUser().getId())
                 .regDate(Timestamp.valueOf(LocalDateTime.now()))
                 .status(Article.ArticleStatus.UNDER_CONSIDERATION)
-                .filePath(documentFile.getPath())
                 .build();
         return articleRepository.save(article).getId();
     }
@@ -62,10 +60,11 @@ public class ArticleService {
     }
 
     public void check(Long id) {
-        if (articleRepository.findById(id).isEmpty()) {
+        Optional<Article> optionalArticle = articleRepository.findById(id);
+        if (optionalArticle.isEmpty()) {
             throw new GenericNotFoundException("Article not found!", 404);
         }
-        Article article = articleRepository.findById(id).get();
+        Article article = optionalArticle.get();
         article.setStatus(Article.ArticleStatus.CONSIDERED);
         articleRepository.save(article);
     }
@@ -86,14 +85,14 @@ public class ArticleService {
                 .filePath(article.getFilePath())
                 .regDate(article.getRegDate())
                 .articleSession(articleSessionService.get(article.getSessionId()))
-                .authUser(authUserService.getSessionAuthUser())
+                .authUser(authUserService.get(article.getAuthUserId()))
                 .build()));
         return articleDtos;
     }
 
     public List<ArticleDto> getAll() {
         List<ArticleDto> articleDtos = new ArrayList<>();
-        List<Article> all = articleRepository.findAll();
+        List<Article> all = articleRepository.findAllByDescendingOrder();
         if (!all.isEmpty()) {
             all.forEach(article -> articleDtos.add(ArticleDto.builder()
                     .id(article.getId())
@@ -102,9 +101,21 @@ public class ArticleService {
                     .filePath(article.getFilePath())
                     .regDate(article.getRegDate())
                     .articleSession(articleSessionService.get(article.getSessionId()))
-                    .authUser(authUserService.getSessionAuthUser())
+                    .authUser(authUserService.get(article.getAuthUserId()))
                     .build()));
         }
         return articleDtos;
+    }
+
+    public void upload(Long id, MultipartFile file) {
+        Optional<Article> optionalArticle = articleRepository.findById(id);
+        if (optionalArticle.isEmpty()) {
+            throw new GenericNotFoundException("Article not found!", 404);
+        }
+        AppDocumentFile documentFile = storageService.uploadArticleFile(file);
+        appDocumentFileRepository.save(documentFile);
+        Article article = optionalArticle.get();
+        article.setFilePath(documentFile.getPath());
+        articleRepository.save(article);
     }
 }

@@ -16,4 +16,7 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
 
     @Query("from Article where authUserId = :id")
     Optional<List<Article>> findByUserId(Long id);
+
+    @Query("from Article order by id desc")
+    List<Article> findAllByDescendingOrder();
 }

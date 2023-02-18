@@ -57,11 +57,11 @@ public class SpeakerService {
     }
 
     public void uploadPhoto(MultipartFile file, Long id) {
-        ImageMedia imageMedia = storageService.uploadPhoto(file);
         Optional<Speakers> optionalSpeakers = speakerRepository.findById(id);
         if (optionalSpeakers.isEmpty()) {
             throw new GenericNotFoundException("Speaker not found!", 404);
         }
+        ImageMedia imageMedia = storageService.uploadPhoto(file);
         Speakers speakers = optionalSpeakers.get();
         speakers.setImagePath(imageMedia.getPath());
         speakerRepository.save(speakers);

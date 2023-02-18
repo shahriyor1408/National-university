@@ -117,20 +117,26 @@ public class AuthUserService implements UserDetailsService {
     }
 
     public AuthUser update(@NonNull AuthUserUpdateDto dto) {
-        if (authUserRepository.findByUsername(dto.getUsername()).isEmpty()) {
+        Optional<AuthUser> optionalAuthUser = authUserRepository.findByUsername(dto.getUsername());
+        if (optionalAuthUser.isEmpty()) {
             throw new GenericRuntimeException("User did not exist!", 400);
         }
-        AuthUser authUser = authUserRepository.findByUsername(dto.getUsername()).get();
+        AuthUser authUser = optionalAuthUser.get();
         authUser.setFirstname(dto.getFirstname());
         authUser.setLastname(dto.getLastname());
         authUser.setMiddleName(dto.getMiddleName());
 
-        if (authUserRepository.findByTelephone(dto.getTelephone()).isPresent()) {
-            throw new GenericRuntimeException("Telephone already exist!", 400);
+        if (!authUser.getTelephone().equals(dto.getTelephone())) {
+            if (authUserRepository.findByTelephone(dto.getTelephone()).isPresent()) {
+                throw new GenericRuntimeException("Telephone already exist!", 400);
+            }
         }
-        if (authUserRepository.findByEmail(dto.getEmail()).isPresent()) {
-            throw new GenericRuntimeException("Email already exist!", 400);
+        if (!authUser.getEmail().equals(dto.getEmail())) {
+            if (authUserRepository.findByEmail(dto.getEmail()).isPresent()) {
+                throw new GenericRuntimeException("Email already exist!", 400);
+            }
         }
+
         authUser.setEmail(dto.getEmail());
         authUser.setTelephone(dto.getTelephone());
         return authUserRepository.save(authUser);
@@ -138,5 +144,9 @@ public class AuthUserService implements UserDetailsService {
 
     public List<AuthUser> getAll() {
         return authUserRepository.findAll();
+    }
+
+    public AuthUser get(Long authUserId) {
+        return authUserRepository.findById(authUserId).orElse(null);
     }
 }

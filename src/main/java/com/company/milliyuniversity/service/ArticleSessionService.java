@@ -49,9 +49,6 @@ public class ArticleSessionService {
 
     public ArticleSession get(@NonNull Long sessionId) {
         Optional<ArticleSession> sessionOptional = articleSessionRepository.findById(sessionId);
-        if (sessionOptional.isEmpty()) {
-            throw new GenericNotFoundException("Session not found!", 404);
-        }
-        return sessionOptional.get();
+        return sessionOptional.orElse(null);
     }
 }

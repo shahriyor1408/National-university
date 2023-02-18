@@ -7,6 +7,7 @@ import com.company.milliyuniversity.service.ArticleSessionService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -22,7 +23,7 @@ public class ArticleSessionController extends ApiController<ArticleSessionServic
 
     @PostMapping(value = PATH + "/session/create", produces = "application/json")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<Long> create(@RequestBody ArticleSessionCreateDto dto) {
+    public ApiResponse<Long> create(@Valid @RequestBody ArticleSessionCreateDto dto) {
         return new ApiResponse<>(service.create(dto));
     }
 

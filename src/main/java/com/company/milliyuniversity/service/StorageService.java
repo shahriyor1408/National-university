@@ -5,14 +5,12 @@ import com.company.milliyuniversity.domains.ImageMedia;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.time.LocalTime;
 import java.util.UUID;
 
 /**
@@ -75,7 +73,8 @@ public class StorageService {
                     .contentType(file.getContentType())
                     .originalName(fileName)
                     .size(file.getSize())
-                    .path(fileName)
+                    .path("http://ec2-18-181-189-44.ap-northeast-1.compute.amazonaws.com:8080/api/v1/article/download/" + fileName)
+//                    .path("http://localhost:8080/api/v1/article/download/" + fileName)
                     .build();
         } catch (IOException e) {
             throw new RuntimeException("Something wrong try again! Check your action!");
@@ -100,7 +99,7 @@ public class StorageService {
     }
 
     public ImageMedia uploadPhoto(MultipartFile file) {
-        var fileName = UUID.randomUUID() + LocalTime.now().toString();
+        var fileName = UUID.randomUUID() + file.getOriginalFilename();
         var dest = Paths.get(mediaPath + "/" + fileName);
         try {
             Files.copy(file.getInputStream(), dest, StandardCopyOption.REPLACE_EXISTING);
@@ -109,7 +108,7 @@ public class StorageService {
                     .contentType(file.getContentType())
                     .originalName(fileName)
                     .size(file.getSize())
-                    .path(ServletUriComponentsBuilder.fromCurrentContextPath().path("/media/").path(fileName).toUriString())
+                    .path(filePath + dest.toAbsolutePath())
                     .build();
         } catch (IOException e) {
             throw new RuntimeException("Something wrong try again! Check your action!");

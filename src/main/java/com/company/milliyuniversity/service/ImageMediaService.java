@@ -24,7 +24,6 @@ public class ImageMediaService {
 
     private final StorageService storageService;
     private final ImageMediaRepository imageMediaRepository;
-
     private final Path root = Paths.get("./media");
 
     public ImageMediaService(StorageService storageService, ImageMediaRepository imageMediaRepository) {

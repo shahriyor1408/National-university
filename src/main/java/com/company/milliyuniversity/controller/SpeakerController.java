@@ -50,9 +50,9 @@ public class SpeakerController extends ApiController<SpeakerService> {
         return new ApiResponse<>(service.getAllInvited());
     }
 
-    @PostMapping(value = PATH + "/speaker/uploadPhoto/{id}", consumes = "multipart/form-data")
+    @PostMapping(value = PATH + "/speaker/uploadPhoto/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<Void> uploadPhoto(@RequestBody MultipartFile file, @PathVariable Long id) {
+    public ApiResponse<Void> uploadPhoto(@RequestParam("file") MultipartFile file, @PathVariable Long id) {
         service.uploadPhoto(file, id);
         return new ApiResponse<>(200, true);
     }

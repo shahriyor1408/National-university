@@ -15,8 +15,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class NationalUniversityApplication {
 
-//    private final AuthUserRepository authUserRepository;
-//    private final PasswordEncoder passwordEncoder;
+    private final AuthUserRepository authUserRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public static void main(String[] args) {
         SpringApplication.run(NationalUniversityApplication.class, args);
@@ -24,21 +24,21 @@ public class NationalUniversityApplication {
 
     @PostConstruct
     public void register() {
-//        AuthRole authRole = AuthRole.builder()
-//                .name("Admin")
-//                .code("ADMIN")
-//                .build();
-//
-//        AuthUser authUser = AuthUser.builder()
-//                .username("admin")
-//                .password(passwordEncoder.encode("admin"))
-//                .firstname("Admin")
-//                .lastname("Admin")
-//                .middleName("Admin")
-//                .email("admin@gmail.com")
-//                .telephone("+998900265214")
-//                .roles(List.of(authRole))
-//                .build();
-//        authUserRepository.save(authUser);
+        AuthRole authRole = AuthRole.builder()
+                .name("Admin")
+                .code("ADMIN")
+                .build();
+
+        AuthUser authUser = AuthUser.builder()
+                .username("admin")
+                .password(passwordEncoder.encode("admin"))
+                .firstname("Admin")
+                .lastname("Admin")
+                .middleName("Admin")
+                .email("admin@gmail.com")
+                .telephone("+998900265214")
+                .roles(List.of(authRole))
+                .build();
+        authUserRepository.save(authUser);
     }
 }
