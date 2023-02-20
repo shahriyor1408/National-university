@@ -1,4 +1,4 @@
-package com.company.milliyuniversity.configs;
+package com.company.milliyuniversity.configs.security;
 
 /**
  * @author "Sohidjonov Shahriyor"

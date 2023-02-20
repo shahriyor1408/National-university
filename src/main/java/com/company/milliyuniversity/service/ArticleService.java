@@ -42,6 +42,10 @@ public class ArticleService {
     }
 
     public Long create(ArticleCreateDto dto) {
+        Optional<Article> optionalArticle = articleRepository.findByName(dto.getName());
+        if (optionalArticle.isPresent()) {
+            throw new GenericNotFoundException("Article already exist!", 400);
+        }
         Article article = Article.builder()
                 .name(dto.getName())
                 .sessionId(dto.getSessionId())
@@ -65,7 +69,12 @@ public class ArticleService {
             throw new GenericNotFoundException("Article not found!", 404);
         }
         Article article = optionalArticle.get();
-        article.setStatus(Article.ArticleStatus.CONSIDERED);
+
+        if (article.getStatus().equals(Article.ArticleStatus.CONSIDERED)) {
+            article.setStatus(Article.ArticleStatus.UNDER_CONSIDERATION);
+        } else {
+            article.setStatus(Article.ArticleStatus.CONSIDERED);
+        }
         articleRepository.save(article);
     }
 

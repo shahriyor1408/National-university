@@ -31,13 +31,16 @@ public class ArticleSessionService {
     }
 
     public Long create(@NonNull ArticleSessionCreateDto dto) {
+        if (articleSessionRepository.findByName(dto.getName()).isPresent()) {
+            throw new GenericNotFoundException("Session already exist!", 400);
+        }
         ArticleSession articleSession = articleSessionMapper.fromMapper(dto);
         articleSession.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
         return articleSessionRepository.save(articleSession).getId();
     }
 
     public List<ArticleSession> getAll() {
-        return articleSessionRepository.findAll();
+        return articleSessionRepository.findAllByOrder();
     }
 
     public void delete(@NonNull Long id) {

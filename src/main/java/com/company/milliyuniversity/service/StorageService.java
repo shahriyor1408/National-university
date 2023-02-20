@@ -2,6 +2,7 @@ package com.company.milliyuniversity.service;
 
 import com.company.milliyuniversity.domains.AppDocumentFile;
 import com.company.milliyuniversity.domains.ImageMedia;
+import com.company.milliyuniversity.exceptions.GenericRuntimeException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -64,7 +65,7 @@ public class StorageService {
     }
 
     public AppDocumentFile uploadArticleFile(MultipartFile file) {
-        var fileName = UUID.randomUUID() + file.getOriginalFilename();
+        var fileName = UUID.randomUUID() + checkFile(file);
         var dest = Paths.get(articleFile + "/" + fileName);
         try {
             Files.copy(file.getInputStream(), dest, StandardCopyOption.REPLACE_EXISTING);
@@ -82,7 +83,7 @@ public class StorageService {
     }
 
     public AppDocumentFile uploadAppFile(MultipartFile file) {
-        var fileName = UUID.randomUUID() + file.getOriginalFilename();
+        var fileName = UUID.randomUUID() + checkFile(file);
         var dest = Paths.get(appFile + "/" + fileName);
         try {
             Files.copy(file.getInputStream(), dest, StandardCopyOption.REPLACE_EXISTING);
@@ -99,7 +100,7 @@ public class StorageService {
     }
 
     public ImageMedia uploadPhoto(MultipartFile file) {
-        var fileName = UUID.randomUUID() + file.getOriginalFilename();
+        var fileName = UUID.randomUUID() + checkFile(file);
         var dest = Paths.get(mediaPath + "/" + fileName);
         try {
             Files.copy(file.getInputStream(), dest, StandardCopyOption.REPLACE_EXISTING);
@@ -113,5 +114,27 @@ public class StorageService {
         } catch (IOException e) {
             throw new RuntimeException("Something wrong try again! Check your action!");
         }
+    }
+
+    private String checkFile(MultipartFile file) {
+        StringBuilder name = new StringBuilder();
+        if (file != null) {
+            if (file.getContentType() == null) {
+                throw new GenericRuntimeException("File content type is not supported!", 400);
+            }
+            String originalFilename = file.getOriginalFilename();
+            if (originalFilename != null) {
+                for (int i = 0; i < originalFilename.length(); i++) {
+                    if (originalFilename.charAt(i) != ' ') {
+                        name.append(originalFilename.charAt(i));
+                    }
+                }
+            } else {
+                name.append("filename");
+            }
+        } else {
+            throw new GenericRuntimeException("File is null!", 400);
+        }
+        return name.toString();
     }
 }

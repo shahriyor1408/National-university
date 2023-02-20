@@ -14,9 +14,12 @@ import java.util.Optional;
  */
 public interface SpeakerRepository extends JpaRepository<Speakers, Long> {
 
-    @Query("from Speakers where fullName = :fullName")
+    @Query("from Speakers where fullName = :fullName order by id desc")
     Optional<Speakers> findByFullName(String fullName);
 
-    @Query("from Speakers where status = 'INVITED'")
+    @Query("from Speakers where status = 'INVITED' order by id desc")
     List<Speakers> getAllInvited();
+
+    @Query("from Speakers order by id desc")
+    List<Speakers> findAllByOrder();
 }

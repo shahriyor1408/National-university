@@ -49,7 +49,7 @@ public class SpeakerService {
     }
 
     public List<Speakers> getAll() {
-        return speakerRepository.findAll();
+        return speakerRepository.findAllByOrder();
     }
 
     public List<Speakers> getAllInvited() {

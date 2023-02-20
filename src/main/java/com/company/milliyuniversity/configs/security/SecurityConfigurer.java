@@ -1,5 +1,6 @@
-package com.company.milliyuniversity.configs;
+package com.company.milliyuniversity.configs.security;
 
+import com.company.milliyuniversity.configs.AuthenticationEntryPoint;
 import com.company.milliyuniversity.configs.jwt.JWTFilter;
 import com.company.milliyuniversity.service.AuthUserService;
 import com.company.milliyuniversity.utils.jwt.TokenService;
@@ -12,14 +13,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.multipart.support.MultipartFilter;
 
-import java.util.List;
-
-import static com.company.milliyuniversity.configs.SecurityConstants.WHITE_LIST;
+import static com.company.milliyuniversity.configs.security.SecurityConstants.WHITE_LIST;
 
 /**
  * @author "Sohidjonov Shahriyor"
@@ -49,9 +45,7 @@ public class SecurityConfigurer {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
-                .cors(httpSecurityCorsConfigurer ->
-                        httpSecurityCorsConfigurer.configurationSource(corsConfiguration())
-                )
+                .cors().disable()
                 .authorizeRequests(expressionInterceptUrlRegistry -> expressionInterceptUrlRegistry
                         .antMatchers(WHITE_LIST).permitAll()
                         .anyRequest().authenticated()
@@ -63,24 +57,22 @@ public class SecurityConfigurer {
         return http.build();
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfiguration() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowCredentials(false);
-//        config.setAllowedOrigins(List.of(
-//                "http://localhost:63342",
-//                "http://127.0.0.1:3000"
-//        ));
-        config.setAllowedOrigins(List.of("*"));
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
+//    @Bean
+//    public CorsConfigurationSource corsConfigurationSource() {
+//        final CorsConfiguration configuration = new CorsConfiguration();
+//        configuration.setAllowedOrigins(List.of("https://milliy-university.netlify.app")); // www - obligatory
+////        configuration.setAllowedOrigins(ImmutableList.of("*"));  //set access from all domains
+//        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
+//        configuration.setAllowCredentials(true);
+//        configuration.setAllowedHeaders(List.of("Authorization", "Cache-Control", "Content-Type"));
+//
+//        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//        return source;
+//    }
 
     @Bean
-    public MultipartFilter multipartFilter(){
+    public MultipartFilter multipartFilter() {
 
         MultipartFilter multipartFilter = new MultipartFilter();
         multipartFilter.setMultipartResolverBeanName("multipartResolver");

@@ -38,7 +38,7 @@ public class ArticleController extends ApiController<ArticleService> {
         return new ApiResponse<>(service.create(dto));
     }
 
-    @PostMapping(value = PATH + "/article/check/{id}", consumes = "application/json")
+    @PutMapping(value = PATH + "/article/check/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> check(@PathVariable Long id) {
         service.check(id);

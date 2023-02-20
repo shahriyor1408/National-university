@@ -2,6 +2,9 @@ package com.company.milliyuniversity.repository;
 
 import com.company.milliyuniversity.domains.ImageMedia;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
 
 /**
  * @author "Sohidjonov Shahriyor"
@@ -9,4 +12,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * milliy-university/IntelliJ IDEA
  */
 public interface ImageMediaRepository extends JpaRepository<ImageMedia, Long> {
+    @Query(value = "from ImageMedia order by id desc")
+    List<ImageMedia> findAllByOrder();
 }

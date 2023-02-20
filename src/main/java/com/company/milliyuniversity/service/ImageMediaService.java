@@ -3,14 +3,9 @@ package com.company.milliyuniversity.service;
 import com.company.milliyuniversity.domains.ImageMedia;
 import com.company.milliyuniversity.exceptions.GenericNotFoundException;
 import com.company.milliyuniversity.repository.ImageMediaRepository;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.net.MalformedURLException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,7 +19,6 @@ public class ImageMediaService {
 
     private final StorageService storageService;
     private final ImageMediaRepository imageMediaRepository;
-    private final Path root = Paths.get("./media");
 
     public ImageMediaService(StorageService storageService, ImageMediaRepository imageMediaRepository) {
         this.storageService = storageService;
@@ -36,7 +30,7 @@ public class ImageMediaService {
     }
 
     public List<ImageMedia> getAll() {
-        return imageMediaRepository.findAll();
+        return imageMediaRepository.findAllByOrder();
     }
 
     public void delete(Long id) {
@@ -45,20 +39,5 @@ public class ImageMediaService {
             throw new GenericNotFoundException("Media not found!", 404);
         }
         imageMediaRepository.deleteById(id);
-    }
-
-    public Resource load(String filename) {
-        try {
-            Path file = root.resolve(filename);
-            Resource resource = new UrlResource(file.toUri());
-
-            if (resource.exists() || resource.isReadable()) {
-                return resource;
-            } else {
-                throw new RuntimeException("Could not read the file!");
-            }
-        } catch (MalformedURLException e) {
-            throw new RuntimeException("Error: " + e.getMessage());
-        }
     }
 }

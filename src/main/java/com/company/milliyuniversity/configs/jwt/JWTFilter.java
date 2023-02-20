@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.function.Function;
 
-import static com.company.milliyuniversity.configs.SecurityConstants.WHITE_LIST;
+import static com.company.milliyuniversity.configs.security.SecurityConstants.WHITE_LIST;
 
 /**
  * @author "Sohidjonov Shahriyor"

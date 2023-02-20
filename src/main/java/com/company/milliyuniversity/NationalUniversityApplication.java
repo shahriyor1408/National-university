@@ -36,7 +36,7 @@ public class NationalUniversityApplication {
                 .lastname("Admin")
                 .middleName("Admin")
                 .email("admin@gmail.com")
-                .telephone("+998900265214")
+                .telephone("+998901234567")
                 .roles(List.of(authRole))
                 .build();
         authUserRepository.save(authUser);

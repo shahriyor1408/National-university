@@ -143,7 +143,7 @@ public class AuthUserService implements UserDetailsService {
     }
 
     public List<AuthUser> getAll() {
-        return authUserRepository.findAll();
+        return authUserRepository.findAllByOrder();
     }
 
     public AuthUser get(Long authUserId) {
