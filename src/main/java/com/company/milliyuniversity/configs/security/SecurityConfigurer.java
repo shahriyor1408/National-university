@@ -50,9 +50,7 @@ public class SecurityConfigurer {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf().disable()
-                .cors(httpSecurityCorsConfigurer ->
-                        httpSecurityCorsConfigurer.configurationSource(corsConfiguration())
-                )
+                .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfiguration()))
                 .authorizeRequests(expressionInterceptUrlRegistry -> expressionInterceptUrlRegistry
                         .antMatchers(WHITE_LIST).permitAll()
                         .anyRequest().authenticated())
@@ -68,10 +66,6 @@ public class SecurityConfigurer {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(false);
-//        config.setAllowedOrigins(List.of(
-//                "http://localhost:3000",
-//                "http://127.0.0.1:3000"
-//        ));
         config.setAllowedOrigins(List.of("*"));
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
@@ -81,7 +75,6 @@ public class SecurityConfigurer {
 
     @Bean
     public MultipartFilter multipartFilter() {
-
         MultipartFilter multipartFilter = new MultipartFilter();
         multipartFilter.setMultipartResolverBeanName("multipartResolver");
         return multipartFilter;

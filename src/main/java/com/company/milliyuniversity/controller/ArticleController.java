@@ -4,9 +4,7 @@ import com.company.milliyuniversity.dtos.ArticleCreateDto;
 import com.company.milliyuniversity.dtos.ArticleDto;
 import com.company.milliyuniversity.response.ApiResponse;
 import com.company.milliyuniversity.service.ArticleService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -14,8 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -26,11 +22,9 @@ import java.util.List;
  */
 @RestController
 public class ArticleController extends ApiController<ArticleService> {
-    protected ArticleController(ArticleService service, @Value("${file.download}") String fileDownloadPath) {
+    protected ArticleController(ArticleService service) {
         super(service);
-        this.fileDownloadPath = fileDownloadPath;
     }
-    private final String fileDownloadPath;
 
     @PostMapping(value = PATH + "/article/create", consumes = MediaType.APPLICATION_JSON_VALUE)
     @PreAuthorize("isAuthenticated()")
@@ -73,15 +67,6 @@ public class ArticleController extends ApiController<ArticleService> {
 
     @GetMapping(PATH + "/article/download/{fileName}")
     public ResponseEntity<InputStreamResource> downloadFile(@PathVariable String fileName) throws IOException {
-        String filePath = fileDownloadPath + fileName; // replace with your own file path
-        File file = new File(filePath);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "attachment; filename=" + fileName);
-        InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
-        return ResponseEntity.ok()
-                .headers(headers)
-                .contentLength(file.length())
-                .contentType(MediaType.parseMediaType("application/octet-stream"))
-                .body(resource);
+        return service.download(fileName);
     }
 }

@@ -10,11 +10,10 @@ import com.company.milliyuniversity.dtos.UserRegisterDTO;
 import com.company.milliyuniversity.dtos.auth.AuthUserUpdateDto;
 import com.company.milliyuniversity.exceptions.GenericInvalidTokenException;
 import com.company.milliyuniversity.exceptions.GenericNotFoundException;
-import com.company.milliyuniversity.exceptions.GenericRuntimeException;
 import com.company.milliyuniversity.mapper.AuthUserMapper;
 import com.company.milliyuniversity.repository.AuthUserRepository;
-import com.company.milliyuniversity.response.ApiResponse;
 import com.company.milliyuniversity.utils.jwt.TokenService;
+import com.company.milliyuniversity.validator.UserCheckService;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -29,7 +28,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 @Service
@@ -40,19 +38,21 @@ public class AuthUserService implements UserDetailsService {
     private final TokenService refreshTokenService;
     private final AuthUserMapper authUserMapper;
     private final PasswordEncoder passwordEncoder;
+    private final UserCheckService checkService;
 
     public AuthUserService(@Lazy CustomAuthenticationManager authenticationManager,
                            AuthUserRepository authUserRepository,
                            @Qualifier("accessTokenService") TokenService accessTokenService,
                            @Qualifier("refreshTokenService") TokenService refreshTokenService,
                            AuthUserMapper authUserMapper,
-                           PasswordEncoder passwordEncoder) {
+                           PasswordEncoder passwordEncoder, UserCheckService checkService) {
         this.authenticationManager = authenticationManager;
         this.authUserRepository = authUserRepository;
         this.accessTokenService = accessTokenService;
         this.refreshTokenService = refreshTokenService;
         this.authUserMapper = authUserMapper;
         this.passwordEncoder = passwordEncoder;
+        this.checkService = checkService;
     }
 
 
@@ -85,21 +85,11 @@ public class AuthUserService implements UserDetailsService {
 
     @SneakyThrows
     @Transactional
-    public ApiResponse<Void> register(@NonNull UserRegisterDTO dto) {
-        dto.setPassword(passwordEncoder.encode(dto.getPassword()));
+    public Long register(@NonNull UserRegisterDTO dto) {
+        checkService.registerCheck(dto);
         AuthUser authUser = authUserMapper.fromRegisterDTO(dto);
-        Optional<AuthUser> user = authUserRepository.findByUsername(dto.getUsername());
-        if (user.isPresent()) {
-            throw new GenericRuntimeException("Username already exist!", 400);
-        }
-        if (authUserRepository.findByTelephone(authUser.getTelephone()).isPresent()) {
-            throw new GenericRuntimeException("Telephone already exist!", 400);
-        }
-        if (authUserRepository.findByEmail(authUser.getEmail()).isPresent()) {
-            throw new GenericRuntimeException("Email already exist!", 400);
-        }
-        authUserRepository.save(authUser);
-        return new ApiResponse<>(200);
+        dto.setPassword(passwordEncoder.encode(dto.getPassword()));
+        return authUserRepository.save(authUser).getId();
     }
 
     public AuthUser getSessionAuthUser() {
@@ -110,35 +100,15 @@ public class AuthUserService implements UserDetailsService {
         } else {
             username = principal.toString();
         }
-
         return authUserRepository.findByUsername(username).orElseThrow(() -> {
             throw new GenericNotFoundException("User not found!", 404);
         });
     }
 
+    @Transactional
     public AuthUser update(@NonNull AuthUserUpdateDto dto) {
-        Optional<AuthUser> optionalAuthUser = authUserRepository.findByUsername(dto.getUsername());
-        if (optionalAuthUser.isEmpty()) {
-            throw new GenericRuntimeException("User did not exist!", 400);
-        }
-        AuthUser authUser = optionalAuthUser.get();
-        authUser.setFirstname(dto.getFirstname());
-        authUser.setLastname(dto.getLastname());
-        authUser.setMiddleName(dto.getMiddleName());
-
-        if (!authUser.getTelephone().equals(dto.getTelephone())) {
-            if (authUserRepository.findByTelephone(dto.getTelephone()).isPresent()) {
-                throw new GenericRuntimeException("Telephone already exist!", 400);
-            }
-        }
-        if (!authUser.getEmail().equals(dto.getEmail())) {
-            if (authUserRepository.findByEmail(dto.getEmail()).isPresent()) {
-                throw new GenericRuntimeException("Email already exist!", 400);
-            }
-        }
-
-        authUser.setEmail(dto.getEmail());
-        authUser.setTelephone(dto.getTelephone());
+        AuthUser authUser = checkService.updateCheck(dto);
+        authUserMapper.update(dto, authUser);
         return authUserRepository.save(authUser);
     }
 
@@ -148,5 +118,10 @@ public class AuthUserService implements UserDetailsService {
 
     public AuthUser get(Long authUserId) {
         return authUserRepository.findById(authUserId).orElse(null);
+    }
+
+    public void delete(@NonNull Long id) {
+        checkService.checkById(id);
+        authUserRepository.deleteById(id);
     }
 }

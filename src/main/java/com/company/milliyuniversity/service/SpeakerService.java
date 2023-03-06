@@ -1,16 +1,20 @@
 package com.company.milliyuniversity.service;
 
-import com.company.milliyuniversity.domains.ImageMedia;
 import com.company.milliyuniversity.domains.Speakers;
 import com.company.milliyuniversity.dtos.SpeakerCreateDto;
-import com.company.milliyuniversity.exceptions.GenericNotFoundException;
-import com.company.milliyuniversity.exceptions.GenericRuntimeException;
+import com.company.milliyuniversity.mapper.SpeakerMapper;
 import com.company.milliyuniversity.repository.SpeakerRepository;
+import com.company.milliyuniversity.validator.SpeakerCheckService;
+import lombok.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author "Sohidjonov Shahriyor"
@@ -22,29 +26,23 @@ public class SpeakerService {
 
     private final SpeakerRepository speakerRepository;
     private final StorageService storageService;
+    private final SpeakerCheckService checkService;
+    private final SpeakerMapper mapper;
 
-    public SpeakerService(SpeakerRepository speakerRepository, StorageService storageService) {
+    public SpeakerService(SpeakerRepository speakerRepository, StorageService storageService, SpeakerCheckService checkService, SpeakerMapper mapper) {
         this.speakerRepository = speakerRepository;
         this.storageService = storageService;
+        this.checkService = checkService;
+        this.mapper = mapper;
     }
 
-    public Long create(SpeakerCreateDto dto) {
-        if (speakerRepository.findByFullName(dto.getFullName()).isPresent()) {
-            throw new GenericRuntimeException("Speaker already exist!", 400);
-        }
-        Speakers speakers = Speakers.builder()
-                .fullName(dto.getFullName())
-                .description(dto.getDescription())
-                .status(Speakers.SpeakerStatus.valueOf(dto.getStatus()))
-                .build();
-        return speakerRepository.save(speakers).getId();
+    public Long create(@NonNull SpeakerCreateDto dto) {
+        checkService.checkByName(dto.getFullName());
+        return speakerRepository.save(mapper.fromDto(dto)).getId();
     }
 
-    public void delete(Long id) {
-        Optional<Speakers> optionalSpeakers = speakerRepository.findById(id);
-        if (optionalSpeakers.isEmpty()) {
-            throw new GenericNotFoundException("Speaker not found!", 404);
-        }
+    public void delete(@NonNull Long id) {
+        checkService.checkById(id);
         speakerRepository.deleteById(id);
     }
 
@@ -56,14 +54,20 @@ public class SpeakerService {
         return speakerRepository.getAllInvited();
     }
 
-    public void uploadPhoto(MultipartFile file, Long id) {
-        Optional<Speakers> optionalSpeakers = speakerRepository.findById(id);
-        if (optionalSpeakers.isEmpty()) {
-            throw new GenericNotFoundException("Speaker not found!", 404);
-        }
-        ImageMedia imageMedia = storageService.uploadPhoto(file);
-        Speakers speakers = optionalSpeakers.get();
-        speakers.setImagePath(imageMedia.getPath());
+    public void uploadPhoto(@NonNull MultipartFile file, @NonNull Long id) {
+        Speakers speakers = checkService.checkById(id);
+        speakers.setImagePath(storageService.uploadPhoto(file).getPath());
         speakerRepository.save(speakers);
+    }
+
+    public void getImage(String img, HttpServletResponse resp) {
+        ServletOutputStream outputStream;
+        try {
+            outputStream = resp.getOutputStream();
+            Path path = Path.of(img);
+            Files.copy(path, outputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

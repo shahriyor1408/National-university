@@ -4,18 +4,25 @@ import com.company.milliyuniversity.domains.AppDocumentFile;
 import com.company.milliyuniversity.domains.Article;
 import com.company.milliyuniversity.dtos.ArticleCreateDto;
 import com.company.milliyuniversity.dtos.ArticleDto;
-import com.company.milliyuniversity.exceptions.GenericNotFoundException;
 import com.company.milliyuniversity.repository.AppDocumentFileRepository;
 import com.company.milliyuniversity.repository.ArticleRepository;
+import com.company.milliyuniversity.validator.ArticleCheckService;
 import lombok.NonNull;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author "Sohidjonov Shahriyor"
@@ -28,48 +35,41 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final AuthUserService authUserService;
     private final ArticleSessionService articleSessionService;
-
+    private final ArticleCheckService checkService;
+    private final String fileDownloadPath;
     private final StorageService storageService;
-
     private final AppDocumentFileRepository appDocumentFileRepository;
 
-    public ArticleService(ArticleRepository articleRepository, AuthUserService authUserService, ArticleSessionService articleSessionService, StorageService storageService, AppDocumentFileRepository appDocumentFileRepository) {
+    public ArticleService(ArticleRepository articleRepository, AuthUserService authUserService,
+                          ArticleSessionService articleSessionService, ArticleCheckService checkService, @Value("${file.download}") String fileDownloadPath,
+                          StorageService storageService, AppDocumentFileRepository appDocumentFileRepository) {
         this.articleRepository = articleRepository;
         this.authUserService = authUserService;
         this.articleSessionService = articleSessionService;
+        this.checkService = checkService;
+        this.fileDownloadPath = fileDownloadPath;
         this.storageService = storageService;
         this.appDocumentFileRepository = appDocumentFileRepository;
     }
 
     public Long create(ArticleCreateDto dto) {
-        Optional<Article> optionalArticle = articleRepository.findByName(dto.getName());
-        if (optionalArticle.isPresent()) {
-            throw new GenericNotFoundException("Article already exist!", 400);
-        }
-        Article article = Article.builder()
+        checkService.checkByName(dto);
+        return articleRepository.save(Article.builder()
                 .name(dto.getName())
                 .sessionId(dto.getSessionId())
                 .authUserId(authUserService.getSessionAuthUser().getId())
                 .regDate(Timestamp.valueOf(LocalDateTime.now()))
                 .status(Article.ArticleStatus.UNDER_CONSIDERATION)
-                .build();
-        return articleRepository.save(article).getId();
+                .build()).getId();
     }
 
     public void delete(@NonNull Long id) {
-        if (articleRepository.findById(id).isEmpty()) {
-            throw new GenericNotFoundException("Article not found!", 404);
-        }
+        checkService.checkById(id);
         articleRepository.deleteById(id);
     }
 
     public void check(Long id) {
-        Optional<Article> optionalArticle = articleRepository.findById(id);
-        if (optionalArticle.isEmpty()) {
-            throw new GenericNotFoundException("Article not found!", 404);
-        }
-        Article article = optionalArticle.get();
-
+        Article article = checkService.checkById(id);
         if (article.getStatus().equals(Article.ArticleStatus.CONSIDERED)) {
             article.setStatus(Article.ArticleStatus.UNDER_CONSIDERATION);
         } else {
@@ -80,13 +80,7 @@ public class ArticleService {
 
     public List<ArticleDto> getAllByUser() {
         List<ArticleDto> articleDtos = new ArrayList<>();
-        Optional<List<Article>> optionalArticles = articleRepository.findByUserId(authUserService.getSessionAuthUser().getId());
-
-        if (optionalArticles.isEmpty()) {
-            throw new GenericNotFoundException("Articles are not found!", 404);
-        }
-
-        List<Article> articleList = optionalArticles.get();
+        List<Article> articleList = articleRepository.findByUserId(authUserService.getSessionAuthUser().getId());
         articleList.forEach(article -> articleDtos.add(ArticleDto.builder()
                 .id(article.getId())
                 .name(article.getName())
@@ -102,29 +96,36 @@ public class ArticleService {
     public List<ArticleDto> getAll() {
         List<ArticleDto> articleDtos = new ArrayList<>();
         List<Article> all = articleRepository.findAllByDescendingOrder();
-        if (!all.isEmpty()) {
-            all.forEach(article -> articleDtos.add(ArticleDto.builder()
-                    .id(article.getId())
-                    .name(article.getName())
-                    .status(article.getStatus().name())
-                    .filePath(article.getFilePath())
-                    .regDate(article.getRegDate())
-                    .articleSession(articleSessionService.get(article.getSessionId()))
-                    .authUser(authUserService.get(article.getAuthUserId()))
-                    .build()));
-        }
+        all.forEach(article -> articleDtos.add(ArticleDto.builder()
+                .id(article.getId())
+                .name(article.getName())
+                .status(article.getStatus().name())
+                .filePath(article.getFilePath())
+                .regDate(article.getRegDate())
+                .articleSession(articleSessionService.get(article.getSessionId()))
+                .authUser(authUserService.get(article.getAuthUserId()))
+                .build()));
         return articleDtos;
     }
 
     public void upload(Long id, MultipartFile file) {
-        Optional<Article> optionalArticle = articleRepository.findById(id);
-        if (optionalArticle.isEmpty()) {
-            throw new GenericNotFoundException("Article not found!", 404);
-        }
+        Article article = checkService.checkById(id);
         AppDocumentFile documentFile = storageService.uploadArticleFile(file);
         appDocumentFileRepository.save(documentFile);
-        Article article = optionalArticle.get();
         article.setFilePath(documentFile.getPath());
         articleRepository.save(article);
+    }
+
+    public ResponseEntity<InputStreamResource> download(String fileName) throws FileNotFoundException {
+        String filePath = fileDownloadPath + fileName; // replace with your own file path
+        File file = new File(filePath);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=" + fileName);
+        InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(file.length())
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .body(resource);
     }
 }

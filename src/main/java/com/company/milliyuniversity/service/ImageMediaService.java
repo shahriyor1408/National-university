@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author "Sohidjonov Shahriyor"
@@ -34,10 +33,9 @@ public class ImageMediaService {
     }
 
     public void delete(Long id) {
-        Optional<ImageMedia> optionalImageMedia = imageMediaRepository.findById(id);
-        if (optionalImageMedia.isEmpty()) {
+        imageMediaRepository.findById(id).orElseThrow(() -> {
             throw new GenericNotFoundException("Media not found!", 404);
-        }
+        });
         imageMediaRepository.deleteById(id);
     }
 }

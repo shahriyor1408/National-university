@@ -9,11 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 
 /**
@@ -59,13 +55,6 @@ public class SpeakerController extends ApiController<SpeakerService> {
 
     @GetMapping(value = "/media", produces = MediaType.MULTIPART_FORM_DATA_VALUE)
     public void getImage(@RequestParam(name = "file") String img, HttpServletResponse resp) {
-        ServletOutputStream outputStream;
-        try {
-            outputStream = resp.getOutputStream();
-            Path path = Path.of(img);
-            Files.copy(path, outputStream);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        service.getImage(img,resp);
     }
 }

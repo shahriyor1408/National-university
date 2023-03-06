@@ -74,25 +74,8 @@ public class StorageService {
                     .contentType(file.getContentType())
                     .originalName(fileName)
                     .size(file.getSize())
-                    .path("https://national-university.herokuapp.com/api/v1/article/download/" + fileName)
-//                    .path("http://localhost:8080/api/v1/article/download/" + fileName)
-                    .build();
-        } catch (IOException e) {
-            throw new RuntimeException("Something wrong try again! Check your action!");
-        }
-    }
-
-    public AppDocumentFile uploadAppFile(MultipartFile file) {
-        var fileName = UUID.randomUUID() + checkFile(file);
-        var dest = Paths.get(appFile + "/" + fileName);
-        try {
-            Files.copy(file.getInputStream(), dest, StandardCopyOption.REPLACE_EXISTING);
-            return AppDocumentFile
-                    .builder()
-                    .contentType(file.getContentType())
-                    .originalName(fileName)
-                    .size(file.getSize())
-                    .path(filePath + dest.toAbsolutePath())
+                    .path("http://localhost:8080/api/v1/article/download/" + fileName)
+//                    .path("http://ec2-18-181-189-44.ap-northeast-1.compute.amazonaws.com:8080/api/v1/article/download/" + fileName)
                     .build();
         } catch (IOException e) {
             throw new RuntimeException("Something wrong try again! Check your action!");

@@ -22,18 +22,13 @@ import org.springframework.context.annotation.Configuration;
                 contact = @Contact(name = "Shahriyor Sohidjonov", url = "https://trello.com", email = "sohidjonovshahriyor1408@gmail.com"),
                 license = @License(name = "Apache Foundation", url = "http://apache.org")
         ),
-        security = {
-                @SecurityRequirement(
-                        name = "Bearer"
-                )
-        }
+        security = {@SecurityRequirement(name = "Bearer")}
 )
 @SecurityScheme(
         name = "Bearer",
         type = SecuritySchemeType.HTTP,
         bearerFormat = "JWT",
-        scheme = "Bearer"
-)
+        scheme = "Bearer")
 public class OpenApiConfigurer {
 
 }

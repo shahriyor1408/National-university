@@ -36,6 +36,6 @@ public class ArticleSessionController extends ApiController<ArticleSessionServic
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Void> delete(@PathVariable Long id) {
         service.delete(id);
-        return new ApiResponse<>(200);
+        return new ApiResponse<>(200,true);
     }
 }

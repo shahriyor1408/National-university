@@ -1,4 +1,4 @@
-package com.company.milliyuniversity.domains;
+package com.company.milliyuniversity.domains.auth;
 
 import lombok.*;
 
@@ -6,7 +6,7 @@ import javax.persistence.*;
 
 /**
  * @author "Sohidjonov Shahriyor"
- * @since 07/02/23 Tuesday 17:25
+ * @since 27/02/23 Monday 13:57
  * milliy-university/IntelliJ IDEA
  */
 @Getter
@@ -15,8 +15,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Builder
 @Entity
-public class AppDocument {
-
+public class Language {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,5 +23,9 @@ public class AppDocument {
     @Column(nullable = false, unique = true)
     private String name;
 
-    private String filePath;
+    @Column(nullable = false, unique = true)
+    private String code;
+
+    @Builder.Default
+    private Boolean active = false;
 }

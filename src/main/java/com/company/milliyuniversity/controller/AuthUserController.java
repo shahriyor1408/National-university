@@ -31,8 +31,8 @@ public class AuthUserController extends ApiController<AuthUserService> {
     }
 
     @PostMapping(PATH + "/auth/register")
-    public ApiResponse<Void> register(@Valid @RequestBody UserRegisterDTO dto) {
-        return service.register(dto);
+    public ApiResponse<Long> register(@Valid @RequestBody UserRegisterDTO dto) {
+        return new ApiResponse<>(service.register(dto));
     }
 
     @PutMapping(PATH + "/auth/update")
@@ -51,6 +51,13 @@ public class AuthUserController extends ApiController<AuthUserService> {
     @PreAuthorize(value = "hasRole('ADMIN')")
     public ApiResponse<List<AuthUser>> getAll() {
         return new ApiResponse<>(service.getAll());
+    }
+
+    @DeleteMapping(PATH + "/auth/delete/{id}")
+    @PreAuthorize(value = "hasRole('ADMIN')")
+    public ApiResponse<Void> delete(@PathVariable String id) {
+        service.delete(Long.parseLong(id));
+        return new ApiResponse<>(200, true);
     }
 
     @GetMapping(value = PATH + "/auth/refresh", produces = "application/json")

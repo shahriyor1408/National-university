@@ -16,7 +16,7 @@ import java.util.Optional;
 public interface ArticleRepository extends JpaRepository<Article, Long> {
 
     @Query("from Article where authUserId = :id order by id desc")
-    Optional<List<Article>> findByUserId(Long id);
+    List<Article> findByUserId(Long id);
 
     @Query("from Article order by id desc")
     List<Article> findAllByDescendingOrder();
