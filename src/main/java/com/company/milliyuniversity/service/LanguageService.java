@@ -52,8 +52,6 @@ public class LanguageService {
     }
 
     public Language getCurrentLanguage() {
-        return languageRepository.getCurrent().orElseThrow(() -> {
-            throw new GenericNotFoundException("Language not found!", 404);
-        });
+        return languageRepository.getCurrent().orElseThrow(() -> new GenericNotFoundException("Language not found!", 404));
     }
 }

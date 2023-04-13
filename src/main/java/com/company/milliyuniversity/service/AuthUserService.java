@@ -100,9 +100,7 @@ public class AuthUserService implements UserDetailsService {
         } else {
             username = principal.toString();
         }
-        return authUserRepository.findByUsername(username).orElseThrow(() -> {
-            throw new GenericNotFoundException("User not found!", 404);
-        });
+        return authUserRepository.findByUsername(username).orElseThrow(() -> new GenericNotFoundException("User not found!", 404));
     }
 
     @Transactional

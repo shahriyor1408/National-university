@@ -19,15 +19,11 @@ public class LanguageCheckService {
     private final LanguageRepository languageRepository;
 
     public Language checkByCode(String code) {
-        return languageRepository.findByCode(code).orElseThrow(() -> {
-            throw new GenericNotFoundException("Language not found!", 404);
-        });
+        return languageRepository.findByCode(code).orElseThrow(() -> new GenericNotFoundException("Language not found!", 404));
     }
 
     public void checkById(Long id) {
-        languageRepository.findById(id).orElseThrow(() -> {
-            throw new GenericNotFoundException("Language not found!", 404);
-        });
+        languageRepository.findById(id).orElseThrow(() -> new GenericNotFoundException("Language not found!", 404));
     }
 
     public void checkIfExist(String code) {

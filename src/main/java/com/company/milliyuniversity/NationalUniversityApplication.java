@@ -1,8 +1,15 @@
 package com.company.milliyuniversity;
 
+import com.company.milliyuniversity.domains.auth.AuthRole;
+import com.company.milliyuniversity.domains.auth.AuthUser;
+import com.company.milliyuniversity.repository.AuthUserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import javax.annotation.PostConstruct;
+import java.util.List;
 
 @SpringBootApplication
 @RequiredArgsConstructor

@@ -20,7 +20,7 @@ import org.springframework.context.annotation.Configuration;
         info = @Info(title = "Online shop", version = "v1",
                 description = "This API is made for online shopping market!",
                 contact = @Contact(name = "Shahriyor Sohidjonov", url = "https://trello.com", email = "sohidjonovshahriyor1408@gmail.com"),
-                license = @License(name = "Apache Foundation", url = "http://apache.org")
+                license = @License(name = "Apache Foundation", url = "https://apache.org")
         ),
         security = {@SecurityRequirement(name = "Bearer")}
 )

@@ -3,6 +3,7 @@ package com.company.milliyuniversity.configs.jwt;
 import com.company.milliyuniversity.configs.UserDetails;
 import com.company.milliyuniversity.service.AuthUserService;
 import com.company.milliyuniversity.utils.jwt.TokenService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -36,7 +37,9 @@ public class JWTFilter extends OncePerRequestFilter {
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request,
+                                    @NotNull HttpServletResponse response,
+                                    @NotNull FilterChain filterChain) throws ServletException, IOException {
         if (!isOpenUrl.apply(request.getRequestURI())) {
             try {
                 String token = parseJwt(request);

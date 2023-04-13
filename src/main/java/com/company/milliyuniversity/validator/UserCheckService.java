@@ -59,9 +59,7 @@ public class UserCheckService {
     }
 
     public void checkById(@NonNull Long id) {
-        authUserRepository.findById(id).orElseThrow(() -> {
-            throw new GenericRuntimeException("User did not exist!", 400);
-        });
+        authUserRepository.findById(id).orElseThrow(() -> new GenericRuntimeException("User did not exist!", 400));
     }
 
     public void registerCheck(UserRegisterDTO dto) {
@@ -72,9 +70,7 @@ public class UserCheckService {
     }
 
     public AuthUser updateCheck(AuthUserUpdateDto dto) {
-        AuthUser authUser = authUserRepository.findByUsername(dto.getUsername()).orElseThrow(() -> {
-            throw new GenericRuntimeException("User did not exist!", 400);
-        });
+        AuthUser authUser = authUserRepository.findByUsername(dto.getUsername()).orElseThrow(() -> new GenericRuntimeException("User did not exist!", 400));
         if (!authUser.getTelephone().equals(dto.getTelephone())) {
             checkTelephone(dto.getTelephone());
         }

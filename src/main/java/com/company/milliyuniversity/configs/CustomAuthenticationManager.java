@@ -28,9 +28,7 @@ public class CustomAuthenticationManager implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         String username = authentication.getName();
         String password = authentication.getCredentials().toString();
-        AuthUser authUser = repository.findByUsername(username).orElseThrow(() -> {
-            throw new GenericNotFoundException("Invalid username or password!", 404);
-        });
+        AuthUser authUser = repository.findByUsername(username).orElseThrow(() -> new GenericNotFoundException("Invalid username or password!", 404));
         if (!encoder.matches(password, authUser.getPassword())) {
             String message;
             int statusCode;

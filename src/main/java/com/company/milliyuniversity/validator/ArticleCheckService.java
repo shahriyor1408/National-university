@@ -20,14 +20,10 @@ public class ArticleCheckService {
     private final ArticleRepository articleRepository;
 
     public void checkByName(@NonNull ArticleCreateDto dto) {
-        articleRepository.findByName(dto.getName()).orElseThrow(() -> {
-            throw new GenericNotFoundException("Article already exist!", 400);
-        });
+        articleRepository.findByName(dto.getName()).orElseThrow(() -> new GenericNotFoundException("Article already exist!", 400));
     }
 
     public Article checkById(Long id) {
-        return articleRepository.findById(id).orElseThrow(() -> {
-            throw new GenericNotFoundException("Article not found!", 404);
-        });
+        return articleRepository.findById(id).orElseThrow(() -> new GenericNotFoundException("Article not found!", 404));
     }
 }

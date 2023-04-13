@@ -33,9 +33,7 @@ public class ImageMediaService {
     }
 
     public void delete(Long id) {
-        imageMediaRepository.findById(id).orElseThrow(() -> {
-            throw new GenericNotFoundException("Media not found!", 404);
-        });
+        imageMediaRepository.findById(id).orElseThrow(() -> new GenericNotFoundException("Media not found!", 404));
         imageMediaRepository.deleteById(id);
     }
 }

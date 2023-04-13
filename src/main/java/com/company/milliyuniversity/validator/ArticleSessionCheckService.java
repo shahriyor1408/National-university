@@ -23,8 +23,6 @@ public class ArticleSessionCheckService {
     }
 
     public void checkById(@NonNull Long id) {
-        articleSessionRepository.findById(id).orElseThrow(() -> {
-            throw new GenericNotFoundException("Session not found!", 404);
-        });
+        articleSessionRepository.findById(id).orElseThrow(() -> new GenericNotFoundException("Session not found!", 404));
     }
 }

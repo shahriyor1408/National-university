@@ -18,14 +18,10 @@ public class SpeakerCheckService {
     private final SpeakerRepository speakerRepository;
 
     public void checkByName(String fullName) {
-        speakerRepository.findByFullName(fullName).orElseThrow(() -> {
-            throw new GenericRuntimeException("Speaker already exist!", 400);
-        });
+        speakerRepository.findByFullName(fullName).orElseThrow(() -> new GenericRuntimeException("Speaker already exist!", 400));
     }
 
     public Speakers checkById(Long id) {
-        return speakerRepository.findById(id).orElseThrow(() -> {
-            throw new GenericNotFoundException("Speaker not found!", 404);
-        });
+        return speakerRepository.findById(id).orElseThrow(() -> new GenericNotFoundException("Speaker not found!", 404));
     }
 }
